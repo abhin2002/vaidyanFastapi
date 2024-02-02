@@ -65,3 +65,4 @@ jobs:
           app-name: 'vaidyan'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_060832CC33544F4E9834C7A4EB18D4D7 }}
+        run: uvicorn main:app --reload
