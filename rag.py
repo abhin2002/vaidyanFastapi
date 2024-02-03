@@ -35,7 +35,8 @@ def load_rag_pipeline(name = "faiss_index"):
 
 
 def answer_question(question,qa):
-    answer = qa(question)
+    context = "You are a helpful doctor that would provide patients with first aid information. Give them detailed and simple instructionsso that. The input by the patient given seperated by hyphens ---{0}---"
+    answer = qa(context.format(question))
     return answer
 
 if __name__ == "__main__":

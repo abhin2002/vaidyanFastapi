@@ -1,32 +1,37 @@
-from fastapi import FastAPI, HTTPException
-
-from rag import load_rag_pipeline,answer_question
-
-app = FastAPI()
-
-from fastapi.middleware.cors import CORSMiddleware
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://10.0.2.2:8080"],  # Update with the correct address
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+import os
 
 
-# Paste the existing code here
+from rag import load_rag_pipeline, answer_question
+from flask import Flask, request, jsonify
+# from image2text import analyze_image
 
-# Load the RAG pipeline
+app = Flask(__name__)
+
+# Load the question-answering pipeline
 qa_pipeline = load_rag_pipeline()
 
-@app.post("/answer")
-async def get_answer(text: str):
-    print("Call from flutter")
+@app.route('/ask', methods=['POST'])
+def ask_question():
     try:
-        # Call the answer_question function with the provided text
-        result = answer_question(text, qa_pipeline)
-        print(result)
-        return {"answer": result['result']}
+        data = request.get_json()
+        question = data['question']
+
+        # Answer the question using the question-answering pipeline
+        answer = answer_question(question, qa_pipeline)
+
+        response = {
+            'question': question,
+            'answer': answer["result"],
+        }
+
+        return jsonify(response)
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return jsonify({'error': str(e)}), 500
+    
+# @app.route('/analyze_image', methods=['POST'])
+# def get_text_from_image():
+#     return analyze_image()
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
